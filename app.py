@@ -214,8 +214,11 @@ def index():
 @app.route("/documentation")
 def documentation():
     return render_template("documentation.html")
-
+    
+@app.route('/health')
+def health_check():
+    return 'OK', 200
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True,use_reloader=False,host='0.0.0.0'),
+    app.run('')
