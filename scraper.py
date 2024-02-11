@@ -3,7 +3,6 @@ import numpy as np
 import string
 import re
 from gensim.utils import simple_preprocess
-import nltk
 from nltk.corpus import stopwords
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from google_play_scraper import reviews, Sort
