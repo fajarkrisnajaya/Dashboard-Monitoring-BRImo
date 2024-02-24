@@ -10,6 +10,15 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 import joblib
 from tqdm import tqdm
+import nltk
+
+# Check if NLTK stopwords corpus is downloaded, if not, download it
+try:
+    nltk.data.find('corpora/stopwords.zip')
+except LookupError:
+    print("Downloading NLTK stopwords...")
+    nltk.download('stopwords')
+    print("Download complete.")
 # Function to establish a MongoDB connection
 def connect_to_mongodb(uri, db_name, collection_name):
     client = MongoClient(uri)
