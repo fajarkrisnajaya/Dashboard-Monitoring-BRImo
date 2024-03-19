@@ -89,7 +89,7 @@ def scrape_and_process_reviews(collection):
         new_reviews['at'] = new_reviews['at'].astype(str)
         
         #save to csv
-        new_reviews.to_csv('reviews.csv', index=False)
+        #new_reviews.to_csv('reviews.csv', index=False)
         # Insert to collection
         collection.insert_many(new_reviews.to_dict('records'))
         print(f'Inserted {len(new_reviews)} new reviews.')

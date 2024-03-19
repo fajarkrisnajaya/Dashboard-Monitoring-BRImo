@@ -42,6 +42,35 @@
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
         <h2 class="m-0 d-flex justify-content-left w-100">Brimo Dashboard</h2>
+        <button class="btn btn-outline-primary" id="updateData">Update Data</button>
+        <script>
+          document.querySelector('#updateData').addEventListener('click', function() {
+            // Get the button
+            var button = document.getElementById('updateData');
+
+            // Disable the button and change its text
+            button.disabled = true;
+            button.innerText = 'Updating...';
+
+            fetch('/update', {
+              method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+
+              // Enable the button and change its text back
+              button.disabled = false;
+              button.innerText = 'Update Data';
+
+              // Show a dialog box
+              alert('Update complete!');
+
+              // Refresh the page
+              location.reload();
+            });
+          });
+      </script>
         <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
           <span class="mdi mdi-menu"></span>
         </button>
@@ -249,19 +278,50 @@
                 <div class="card-body">
                   <p class="card-title">Sentiment Proportion</p>
                   <p class="mb-4">Rasio sentimen sepanjang waktu</p>
+
+                  <!-- Add the buttons here -->
+                  <button class="btn btn-outline-primary" onclick="updateDataPie('3D')">3D</button>
+                  <button class="btn btn-outline-primary" onclick="updateDataPie('7D')">7D</button>
+                  <button class="btn btn-outline-primary" onclick="updateDataPie('1M')">1M</button>
+                  <button class="btn btn-outline-primary" onclick="updateDataPie('3M')">3M</button>
+                  <button class="btn btn-outline-primary" onclick="updateDataPie('MAX')">MAX</button>
+
+                  <script>
+                  function updateDataPie(timeRange) {
+                    fetch('/update_data_pie/' + timeRange)
+                      .then(response => response.json())
+                      .then(data => {
+                        // Use the returned data to update the sunburst chart
+                        // This will depend on how your chart is implemented
+                      });
+                  }
+                  </script>
+                  
                   <div id="total-sales-chart-legend"></div>                  
                 </div>
                 <div id="plotly-chart_pie"></div>
                 <script>
-                  // Parse the JSON data passed from Flask
-                  var chartData_pie = JSON.parse('{{ graphJSON_sunburst | safe }}');
-                  Plotly.newPlot('plotly-chart_pie', chartData_pie, {}, {responsive: true});
+                function updateDataPie(timeRange) {
+                  fetch('/update_data_pie/' + timeRange)
+                    .then(response => response.json())
+                    .then(data => {
+                      // Parse the JSON data
+                      var chartData_pie = JSON.parse(data.graphJSON_sunburst);
 
-                    // Add a resize event to update the chart size
-                  window.onresize = function() {
-                      Plotly.Plots.resize('plotly-chart_pie');
-                      Plotly.Plots.resize('plotly-chart');
-                    };
+                      // Use the parsed data to update the sunburst chart
+                      Plotly.newPlot('plotly-chart_pie', chartData_pie, {}, {responsive: true});
+                    });
+                }
+
+                // Parse the JSON data passed from Flask
+                var chartData_pie = JSON.parse('{{ graphJSON_sunburst | safe }}');
+                Plotly.newPlot('plotly-chart_pie', chartData_pie, {}, {responsive: true});
+
+                // Add a resize event to update the chart size
+                window.onresize = function() {
+                  Plotly.Plots.resize('plotly-chart_pie');
+                  Plotly.Plots.resize('plotly-chart');
+                };
                 </script>
               </div>
             </div>

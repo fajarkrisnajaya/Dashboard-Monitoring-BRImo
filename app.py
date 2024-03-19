@@ -10,6 +10,7 @@ import plotly.offline as py
 import plotly.graph_objs as go
 import plotly
 from google_play_scraper import app as scaper_app
+from datetime import datetime, timedelta
 app = Flask(__name__, template_folder="templates")
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
@@ -45,7 +46,13 @@ positive_topics = {
     7: "Ucapan Syukur",
     8: "Kepraktisan"
 }
-@cache.memoize(timeout=5000)
+pipeline_sunburst = [
+    {'$group': {'_id': {'label': '$label'}, 'count': {'$sum': 1}}},
+    {'$project': {'_id': 0, 'label': '$_id.label', 'count': 1}},
+    {'$sort': {'count': 1}}
+]
+
+#@cache.memoize(timeout=5000)
 def fetch_data(pipeline):
     result = list(collection.aggregate(pipeline))
     df = pd.DataFrame(result)
@@ -67,7 +74,7 @@ def generate_line_chart(df):
 
 def generate_sunburst_chart(df):
     df['label'] = df['label'].replace({1: 'Positif', 0: 'Negatif'})
-    fig = px.sunburst(df, path=['label', 'score'], values='count')
+    fig = px.pie(df, names='label', values='count')
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 
@@ -125,7 +132,7 @@ def run_scraper_script():
     global scraper_lock
     with scraper_lock:
         # Run the scraper.py script as a separate process
-        subprocess.Popen(["python", "scraper.py"])
+        subprocess.run(["python", "scraper.py"])
 
 # Call the function to schedule the scraper
 schedule_scraper()
@@ -211,6 +218,34 @@ def index():
                            total_documents,latest_date=latest_date, score=score, installs=installs,graphJSON_topic_label0=graphJSON_topic_label0,
                            graphJSON_topic_label1=graphJSON_topic_label1)
 #############################################################################################################################
+@app.route('/update_data_pie/<string:time_range>', methods=['GET'])
+def update_data_pie(time_range):
+    pipeline_sun = list(pipeline_sunburst)
+    # Determine the start date based on the time range
+    if time_range == '3M':
+        start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d %H:%M:%S')
+    elif time_range == '3D':
+        start_date = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
+    elif time_range == '7D':
+        start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+    elif time_range == '1M':
+        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
+    else:  # 'MAX'
+        start_date = None
+
+    # Modify the pipeline_sunburst to filter the data based on the start date
+    if start_date is not None:
+        pipeline_sun.insert(0, {'$match': {'at': {'$gte': start_date}, 'label': {'$exists': True}}})
+  
+    # Fetch and process the data for the sunburst chart
+    df_sunburst = fetch_data(pipeline_sun)
+    print(df_sunburst)
+    graphJSON_sunburst = generate_sunburst_chart(df_sunburst)
+
+    # Return the updated data
+    return jsonify({'graphJSON_sunburst': graphJSON_sunburst})
+
+
 @app.route("/documentation")
 def documentation():
     return render_template("documentation.html")
@@ -218,6 +253,11 @@ def documentation():
 @app.route('/health')
 def health_check():
     return 'OK', 200
+
+@app.route('/update', methods=['POST'])
+def update_data():
+    run_scraper_script()
+    return jsonify({'status': 'success'}), 200
 
 
 if __name__ == '__main__':
