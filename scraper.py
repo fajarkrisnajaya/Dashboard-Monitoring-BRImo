@@ -91,7 +91,7 @@ def scrape_and_process_reviews(collection):
         #save to csv
         #new_reviews.to_csv('reviews.csv', index=False)
         # Insert to collection
-        collection.insert_many(new_reviews.to_dict('records'))
+        #collection.insert_many(new_reviews.to_dict('records'))
         print(f'Inserted {len(new_reviews)} new reviews.')
 
 if __name__ == "__main__":
