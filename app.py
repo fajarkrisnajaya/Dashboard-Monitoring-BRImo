@@ -52,7 +52,7 @@ pipeline_sunburst = [
     {'$sort': {'count': 1}}
 ]
 
-#@cache.memoize(timeout=5000)
+@cache.memoize(timeout=5000)
 def fetch_data(pipeline):
     result = list(collection.aggregate(pipeline))
     df = pd.DataFrame(result)
