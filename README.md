@@ -16,7 +16,7 @@ The goal is to understand how users feel about the app (positive or negative sen
 - **Topic Modeling**: LDA identifies 10 topics for the negative class and 9 topics for the positive class, offering insights into the main themes discussed in the reviews.
 
 ## Future Works
--Transformers have shown state-of-the-art performance in various NLP tasks, and their application in topic modeling could potentially lead to more accurate and nuanced topic identification.
+- Transformers have shown state-of-the-art performance in various NLP tasks, and their application in topic modeling could potentially lead to more accurate and nuanced topic identification.
 
--Analyze sentiment trends over time: This would involve tracking how sentiment changes over app version releases or timeframes
+- Analyze sentiment trends over time: This would involve tracking how sentiment changes over app version releases or timeframes
 
