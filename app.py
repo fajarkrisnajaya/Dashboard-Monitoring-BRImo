@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__, template_folder="templates")
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
-uri = "mongodb+srv://fajarkrisnajaya:jayanti890@cluster0.4oq7clz.mongodb.net/?retryWrites=true&w=majority"
+uri = "INSERT Mongo URI HERE"
 client = MongoClient(uri)
 db = client['brimo_reviews']
 collection = db['user_reviews']
